@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Vibration } from 'react-native';
-import Tiles from './tiles';
-import Defender from './defender';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity } from 'react-native';
 
 export default function App() {
-  let tileColor = "#fff";
   const [ player, setPlayer ] = useState("attacker");
   const [ attackerValidMoves, setAttackerValidMoves ] = useState(0);
   const [ attackerCol, setAttackerCol ] = useState(4);
@@ -19,17 +15,18 @@ export default function App() {
   const [ defender4Col, setDefender4Col ] = useState(7);
   const [ defender4Row, setDefender4Row ] = useState(0);
   const [activeDefender, setActiveDefender] = useState("");
-  const [ defender1Active, setDefender1Active ] = useState(false);
-  const [ defender2Active, setDefender2Active ] = useState(false);
-  const [ isGameOver, setIsGameOver ] = useState(false);
-  const [ winner, setWinner ] = useState(false);
-  const [ startingColors, setStartingColors ] = useState(["#eeeed5", "#7c945d", "#eeeed5", "#7c945d"]);
-
+  const [ startingColors, setStartingColors ] = useState([
+    { color1: "#eeeed5", color2: "#7c945d"  },
+    { color1: "#7c945d", color2: "#eeeed5"  },
+    { color1: "#eeeed5", color2: "#7c945d"  },
+    { color1: "#7c945d", color2: "#eeeed5"  },
+    { color1: "#eeeed5", color2: "#7c945d"  },
+    { color1: "#7c945d", color2: "#eeeed5"  },
+    { color1: "#eeeed5", color2: "#7c945d"  },
+    { color1: "#7c945d", color2: "#eeeed5"  }
+  ]);
  
-
-
   useEffect(() => {
-    console.log("player changed");
     const attackerGoingUp = attackerRow - 1;
     const attackerGoingDown = attackerRow + 1;
     const attackerGoingLeft = attackerCol - 1;
@@ -43,7 +40,6 @@ export default function App() {
           setAttackerValidMoves(attackerValidMoves + 1);
           moves = moves + 1;
           console.log("attacker valid moves " + attackerValidMoves);
-          console.log("local attacker valid moves " + moves);
         }
       }
       // going top right
@@ -53,7 +49,6 @@ export default function App() {
           setAttackerValidMoves(attackerValidMoves + 1);
           moves = moves + 1;
           console.log("attacker valid moves " + attackerValidMoves);
-          console.log("local attacker valid moves " + moves);
         }
       }
       // going bottom right
@@ -63,7 +58,6 @@ export default function App() {
           setAttackerValidMoves(attackerValidMoves + 1);
           moves = moves + 1;
           console.log("attacker valid moves " + attackerValidMoves);
-          console.log("local attacker valid moves " + moves);
         }
       }
       // going bottom left
@@ -73,50 +67,11 @@ export default function App() {
           setAttackerValidMoves(attackerValidMoves + 1);
           moves = moves + 1;
           console.log("attacker valid moves " + attackerValidMoves);
-          console.log("local attacker valid moves " + moves);
         }
       }
       setAttackerValidMoves(moves);
       console.log("total attacker moves " + attackerValidMoves);
     }
-
-    /*
-    if (player === "attacker" && attackerGoingUp >= 0 && attackerGoingDown <=7 && attackerGoingLeft >=0 && attackerGoingRight <=7) {
-      // going top right
-      if (isHighlighted(attackerGoingUp, attackerGoingRight)) {
-        console.log("going top right is highlighted");
-        setAttackerValidMoves(attackerValidMoves + 1);
-        moves = moves + 1;
-        console.log("attacker valid moves " + attackerValidMoves);
-        console.log("local attacker valid moves " + moves);
-      }
-      // going top left
-      if (isHighlighted(attackerGoingUp, attackerGoingLeft)) {
-        console.log("going top left is highlighted");
-        setAttackerValidMoves(attackerValidMoves + 1);
-        moves = moves + 1;
-        console.log("attacker valid moves " + attackerValidMoves);
-        console.log("local attacker valid moves " + moves);
-      }
-      // going bottom right
-      if (isHighlighted(attackerGoingDown, attackerGoingRight)) {
-        console.log("going bottom right is highlighted");
-        setAttackerValidMoves(attackerValidMoves + 1);
-        moves = moves + 1;
-        console.log("attacker valid moves " + attackerValidMoves);
-        console.log("local attacker valid moves " + moves);
-      }
-      // going bottom left
-      if (isHighlighted(attackerGoingDown, attackerGoingLeft)) {
-        console.log("going bottom left is highlighted");
-        setAttackerValidMoves(attackerValidMoves + 1);
-        moves = moves + 1;
-        console.log("attacker valid moves " + attackerValidMoves);
-        console.log("local attacker valid moves " + moves);
-      }
-
-    }
-    */
 
   }, [player, attackerValidMoves] )
 
@@ -126,79 +81,12 @@ export default function App() {
     console.log("new attacker position col: " + attackerCol + " row: " + attackerRow);
   };
 
-  const checkGameStatus = (row, col) => {
-    if (isTileOccuppiedByADefender(defender1Row, defender1Col, row, col) && isTileOccuppiedByADefender(defender1Row, defender1Col, row, col) && isTileOccuppiedByADefender(defender3Row, defender3Col, row, col)
-    && isTileOccuppiedByADefender(defender2Row, defender2Col, row, col) && isTileOccuppiedByADefender(defender4Row, defender4Col, row, col)) {
-      setWinner("attacker");
-      setIsGameOver(true);
-    }
-  }
-
   const checkIfGameIsOver = () => {
     if (attackerRow === 0 || (attackerRow <= defender1Row && attackerRow <= defender2Row && attackerRow <= defender3Row && attackerRow <= defender4Row)) {
-     // setWinner("Attacker");
       return true;
     } else if (player === "attacker" && !attackerValidMoves) {
-   //   setWinner("Defender");
       return true;
     }
-    //if (player === "player" && attackerValidMoves === 0) {
-    //  return true;
-   // }
-
-    return false;
-  }
-
-
-  const isPlayerMovable = () => {
-    let isAttackerFreeToMove = false;
-    const attackerGoingUp = attackerRow - 1;
-    const attackerGoingDown = attackerRow + 1;
-    const attackerGoingLeft = attackerCol - 1;
-    const attackerGoingRight = attackerCol + 1;
-
-    const attackerGoingTopLeft = { row: attackerRow -1, col: attackerCol -1 };
-    const attackerGoingTopRight = { row: attackerRow -1, col: attackerCol +1 };
-    const attackerGoingBottomLeft = { row: attackerRow +1, col: attackerCol -1 };
-    const attackerGoingBottomRight = { row: attackerRow +1, col: attackerCol +1 };
-
-    const defender1Pos = { row: defender1Row, col: defender1Col };
-    const defender2Pos = { row: defender2Row, col: defender2Col };
-    const defender3Pos = { row: defender3Row, col: defender3Col };
-    const defender4Pos = { row: defender4Row, col: defender4Col };
-
-    // check attacker going top right
-    if (attackerGoingUp >= 0 && attackerGoingRight <=7) {
-      if (defender1Row === attackerGoingUp && defender1Col === attackerGoingRight) {
-        // already occuppied
-      }
-    }
-
-    /*
-    if (!isAttackerAndDefenderSamePosition(attackerGoingUp, attackerGoingLeft, defender1Row, defender1Col) && !isAttackerAndDefenderSamePosition(attackerGoingUp, attackerGoingRight, defender1Row, defender1Col)
-    || !isAttackerAndDefenderSamePosition(attackerGoingDown, attackerGoingLeft, defender1Row, defender1Col) && !isAttackerAndDefenderSamePosition(attackerGoingDown, attackerGoingRight, defender1Row, defender1Col) ) {
-      isAttackerFreeToMove = true;
-    }
-    if (!isAttackerAndDefenderSamePosition(attackerGoingUp, attackerGoingLeft, defender2Row, defender2Col) || !isAttackerAndDefenderSamePosition(attackerGoingUp, attackerGoingRight, defender2Row, defender2Col)
-    || !isAttackerAndDefenderSamePosition(attackerGoingDown, attackerGoingLeft, defender2Row, defender2Col) || !isAttackerAndDefenderSamePosition(attackerGoingDown, attackerGoingRight, defender2Row, defender2Col) ) {
-      isAttackerFreeToMove = true;
-    }
-    if (!isAttackerAndDefenderSamePosition(attackerGoingUp, attackerGoingLeft, defender3Row, defender3Col) || !isAttackerAndDefenderSamePosition(attackerGoingUp, attackerGoingRight, defender3Row, defender3Col)
-    || !isAttackerAndDefenderSamePosition(attackerGoingDown, attackerGoingLeft, defender3Row, defender3Col) || !isAttackerAndDefenderSamePosition(attackerGoingDown, attackerGoingRight, defender3Row, defender3Col) ) {
-      isAttackerFreeToMove = true;
-    }
-    if (!isAttackerAndDefenderSamePosition(attackerGoingUp, attackerGoingLeft, defender4Row, defender4Col) || !isAttackerAndDefenderSamePosition(attackerGoingUp, attackerGoingRight, defender4Row, defender4Col)
-    || !isAttackerAndDefenderSamePosition(attackerGoingDown, attackerGoingLeft, defender4Row, defender4Col) || !isAttackerAndDefenderSamePosition(attackerGoingDown, attackerGoingRight, defender4Row, defender4Col) ) {
-      isAttackerFreeToMove = true;
-    }
-    */
-    return isAttackerFreeToMove;
-  }
-
-  const isAttackerAndDefenderSamePosition = (aRow, aCol, dRow, dCol) => {
-    if (aRow === dRow && aCol === dCol) {
-      return true;
-    } 
     return false;
   }
  
@@ -216,37 +104,21 @@ export default function App() {
         setDefender1Col(col);
         setPlayer("attacker");
         setActiveDefender("");
-        if (isPlayerMovable()) {
-          setIsGameOver(true);
-          setPlayer("");
-        }
       } else if (activeDefender === 2 && isTileValidDestinationForADefender(row, col, 2)) {
         setDefender2Row(row);
         setDefender2Col(col);
         setPlayer("attacker");
         setActiveDefender("");
-        if (isPlayerMovable()) {
-          setIsGameOver(true);
-          setPlayer("");
-        }
       } else if (activeDefender === 3 && isTileValidDestinationForADefender(row, col, 3)) {
         setDefender3Row(row);
         setDefender3Col(col);
         setPlayer("attacker");
         setActiveDefender("");
-        if (isPlayerMovable()) {
-          setIsGameOver(true);
-          setPlayer("");
-        }
       } else if (activeDefender === 4 && isTileValidDestinationForADefender(row, col, 4)) {
         setDefender4Row(row);
         setDefender4Col(col);
         setPlayer("attacker");
         setActiveDefender("");
-        if (isPlayerMovable()) {
-          setIsGameOver(true);
-          setPlayer("");
-        }
       }
     } else {
       // attacker's turn
@@ -256,7 +128,6 @@ export default function App() {
         setAttackerValidMoves(0);
         setPlayer("defender");
       }
-
     }
   }
 
@@ -349,10 +220,7 @@ export default function App() {
         return false;
       }
     }
-
   }
-
-  const defenders = [ { id: "defender1", col: defender1Col, row: defender1Row }, { id: "defender2", col: defender2Col, row: defender2Row }, { id: "defender3", col: defender3Col, row: defender3Row }, { id: "defender4", col: defender4Col, row: defender4Row } ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -364,360 +232,44 @@ export default function App() {
       <Text style={styles.label}>{player}'s turn</Text>  
      } 
       <View style={styles.board}>
-        <View style={styles.row}>
-        {Array.from(Array(8), (e, i) => {
-          return <TouchableOpacity disabled={!isHighlighted(0, i)}  key={i} onPress={() => { onTileClick(0, i) } } style={[styles.tile, { backgroundColor: i%2 ? '#7c945d' : '#eeeed5', opacity: isHighlighted(0, i) ? 0.5 : 1 }]}>
-             {
-                  attackerRow == 0 && attackerCol === i ?
-                  <TouchableOpacity disabled={player === 'defender'} style={[styles.attacker]}>
-                    <Text style={{color: '#000'}}>0</Text>
-                  </TouchableOpacity> : null
-                }  
-              {
-                isTileOccuppiedByADefender(defender1Row, defender1Col, 0, i) ?
-                <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 1 ? 'green': 'black' }]} onPress={() => {setActiveDefender(1)}}>
-                  <Text style={{color: '#FFF'}}>1</Text>
-                </TouchableOpacity> : null
-              }
-              {
-                isTileOccuppiedByADefender(defender2Row, defender2Col, 0, i) ?
-                <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 2 ? 'green': 'black' }]} onPress={() => {setActiveDefender(2)}}>
-                  <Text style={{color: '#FFF'}}>2</Text>
-                </TouchableOpacity> : null
-              }
-              {
-                isTileOccuppiedByADefender(defender3Row, defender3Col, 0, i)?
-                <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 3 ? 'green': 'black' }]} onPress={() => {setActiveDefender(3)}}>
-                  <Text style={{color: '#FFF'}}>3</Text>
-                </TouchableOpacity> : null
-              }
-              {
-                isTileOccuppiedByADefender(defender4Row, defender4Col, 0, i) ?
-                <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 4 ? 'green': 'black' }]} onPress={() => {setActiveDefender(4)}}>
-                  <Text style={{color: '#FFF'}}>4</Text>
-                </TouchableOpacity> : null
-              }
-               
-          </TouchableOpacity>
+        {Array.from(Array(8), (rowE, rowI) => {
+          return <View style={styles.row}>
+                {Array.from(Array(8), (e, i) => {
+                  return <TouchableOpacity disabled={!isHighlighted(rowI, i)} key={i} onPress={() => { onTileClick(rowI, i) } } style={[styles.tile, { backgroundColor: i%2 ? startingColors[rowI].color2 : startingColors[rowI].color1, opacity: isHighlighted(rowI, i) ? 0.5 : 1 }]}>
+                    {
+                        attackerRow == rowI && attackerCol === i ?
+                          <TouchableOpacity disabled={player === 'defender'} style={[styles.pawn, styles.attacker]}>
+                            <Text style={{color: '#000'}}>0</Text>
+                          </TouchableOpacity> : null
+                        }  
+                      {
+                        isTileOccuppiedByADefender(defender1Row, defender1Col, rowI, i) ?
+                        <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 1 ? 'green': 'black' }]} onPress={() => {setActiveDefender(1)}}>
+                          <Text style={{color: '#FFF'}}>1</Text>
+                        </TouchableOpacity> : null
+                      }
+                      {
+                        isTileOccuppiedByADefender(defender2Row, defender2Col, rowI, i) ?
+                        <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 2 ? 'green': 'black' }]} onPress={() => {setActiveDefender(2)}}>
+                          <Text style={{color: '#FFF'}}>2</Text>
+                        </TouchableOpacity> : null
+                      }
+                      {
+                        isTileOccuppiedByADefender(defender3Row, defender3Col, rowI, i)?
+                        <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 3 ? 'green': 'black' }]} onPress={() => {setActiveDefender(3)}}>
+                          <Text style={{color: '#FFF'}}>3</Text>
+                        </TouchableOpacity> : null
+                      }
+                      {
+                        isTileOccuppiedByADefender(defender4Row, defender4Col, rowI, i) ?
+                        <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 4 ? 'green': 'black' }]} onPress={() => {setActiveDefender(4)}}>
+                          <Text style={{color: '#FFF'}}>4</Text>
+                        </TouchableOpacity> : null
+                      }
+                  </TouchableOpacity>
+                })}
+          </View>
         })}
-
-        </View>
-
-        <View style={styles.row}>
-        {Array.from(Array(8), (e, i) => {
-          return <TouchableOpacity disabled={!isHighlighted(1, i)}  key={i} onPress={() => { onTileClick(1, i) } } style={[styles.tile, { backgroundColor: i%2 ? '#eeeed5' : '#7c945d', opacity: isHighlighted(1, i) ? 0.5 : 1 }]}>
-              {
-                  attackerRow == 1 && attackerCol === i ?
-                  <TouchableOpacity disabled={player === 'defender'} style={[styles.attacker]}>
-                    <Text style={{color: '#000'}}>0</Text>
-                  </TouchableOpacity> : null
-                }  
-              {
-                defender1Row == 1 && defender1Col === i ?
-                <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 1 ? 'green': 'black' }]} onPress={() => { setActiveDefender(1)}}>
-                  <Text style={{color: '#FFF'}}>1</Text>
-                </TouchableOpacity> : null
-              }
-              {
-                defender2Row == 1 && defender2Col === i ?
-                <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 2 ? 'green': 'black' }]} onPress={() => {setActiveDefender(2)}}>
-                  <Text style={{color: '#FFF'}}>2</Text>
-                </TouchableOpacity> : null
-              }
-              {
-                defender3Row == 1 && defender3Col === i ?
-                <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 3 ? 'green': 'black' }]} onPress={() => {setActiveDefender(3)}}>
-                  <Text style={{color: '#FFF'}}>3</Text>
-                </TouchableOpacity> : null
-              }
-              {
-                defender4Row == 1 && defender4Col === i ?
-                <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 4 ? 'green': 'black' }]} onPress={() => {setActiveDefender(4)}}>
-                  <Text style={{color: '#FFF'}}>4</Text>
-                </TouchableOpacity> : null
-              }
-               
-          </TouchableOpacity>
-        })}
-
-        </View>
-
-        <View style={styles.row}>
-          {Array.from(Array(8), (e, i) => {
-            return <TouchableOpacity disabled={!isHighlighted(2, i)}  key={i} onPress={() => { onTileClick(2, i) } } style={[styles.tile, { backgroundColor: i%2 ? '#7c945d' : '#eeeed5', opacity: isHighlighted(2, i) ? 0.5 : 1 }]}>
-                {
-                  attackerRow == 2 && attackerCol === i ?
-                  <TouchableOpacity disabled={player === 'defender'} style={[styles.attacker]}>
-                    <Text style={{color: '#000'}}>0</Text>
-                  </TouchableOpacity> : null
-                }  
-                {
-                  defender1Row == 2 && defender1Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 1 ? 'green': 'black' }]} onPress={() => { setActiveDefender(1)}}>
-                    <Text style={{color: '#FFF'}}>1</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender2Row == 2 && defender2Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 2 ? 'green': 'black' }]} onPress={() => {setActiveDefender(2)}}>
-                    <Text style={{color: '#FFF'}}>2</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender3Row == 2 && defender3Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 3 ? 'green': 'black' }]} onPress={() => {setActiveDefender(3)}}>
-                    <Text style={{color: '#FFF'}}>3</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender4Row == 2 && defender4Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 4 ? 'green': 'black' }]} onPress={() => {setActiveDefender(4)}}>
-                    <Text style={{color: '#FFF'}}>4</Text>
-                  </TouchableOpacity> : null
-                }
-                
-            </TouchableOpacity>
-          })}
-        </View>
-
-        <View style={styles.row}>
-          {Array.from(Array(8), (e, i) => {
-            return <TouchableOpacity disabled={!isHighlighted(3, i)}  key={i} onPress={() => { onTileClick(3, i) } } style={[styles.tile, { backgroundColor: i%2 ? '#eeeed5' : '#7c945d', opacity: isHighlighted(3, i) ? 0.5 : 1 }]}>
-                {
-                  attackerRow == 3 && attackerCol === i ?
-                  <TouchableOpacity disabled={player === 'defender'} style={[styles.attacker]}>
-                    <Text style={{color: '#000'}}>0</Text>
-                  </TouchableOpacity> : null
-                }  
-                {
-                  defender1Row == 3 && defender1Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 1 ? 'green': 'black' }]} onPress={() => { setActiveDefender(1)}}>
-                    <Text style={{color: '#FFF'}}>1</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender2Row == 3 && defender2Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 2 ? 'green': 'black' }]} onPress={() => {setActiveDefender(2)}}>
-                    <Text style={{color: '#FFF'}}>2</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender3Row == 3 && defender3Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 3 ? 'green': 'black' }]} onPress={() => {setActiveDefender(3)}}>
-                    <Text style={{color: '#FFF'}}>3</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender4Row == 3 && defender4Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 4 ? 'green': 'black' }]} onPress={() => {setActiveDefender(4)}}>
-                    <Text style={{color: '#FFF'}}>4</Text>
-                  </TouchableOpacity> : null
-                }
-                
-            </TouchableOpacity>
-          })}
-        </View>
-
-        <View style={styles.row}>
-          {Array.from(Array(8), (e, i) => {
-            return <TouchableOpacity disabled={!isHighlighted(4, i)}  key={i} onPress={() => { onTileClick(4, i) } } style={[styles.tile, { backgroundColor: i%2 ? '#7c945d' : '#eeeed5', opacity: isHighlighted(4, i) ? 0.5 : 1 }]}>
-
-                {
-                  attackerRow == 4 && attackerCol === i ?
-                  <TouchableOpacity disabled={player === 'defender'} style={[styles.attacker]}>
-                    <Text style={{color: '#000'}}>0</Text>
-                  </TouchableOpacity> : null
-                }  
-                {
-                  defender1Row == 4 && defender1Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 1 ? 'green': 'black' }]} onPress={() => { setActiveDefender(1)}}>
-                    <Text style={{color: '#FFF'}}>1</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender2Row == 4 && defender2Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 2 ? 'green': 'black' }]} onPress={() => {setActiveDefender(2)}}>
-                    <Text style={{color: '#FFF'}}>2</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender3Row == 4 && defender3Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 3 ? 'green': 'black' }]} onPress={() => {setActiveDefender(3)}}>
-                    <Text style={{color: '#FFF'}}>3</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender4Row == 4 && defender4Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 4 ? 'green': 'black' }]} onPress={() => {setActiveDefender(4)}}>
-                    <Text style={{color: '#FFF'}}>4</Text>
-                  </TouchableOpacity> : null
-                }
-                
-            </TouchableOpacity>
-          })}
-        </View>
-
-        <View style={styles.row}>
-          {Array.from(Array(8), (e, i) => {
-            return <TouchableOpacity disabled={!isHighlighted(5, i)}  key={i} onPress={() => { onTileClick(5, i) } } style={[styles.tile, { backgroundColor: i%2 ? '#eeeed5' : '#7c945d', opacity: isHighlighted(5, i) ? 0.7 : 1 }]}>
-
-                {
-                  attackerRow == 5 && attackerCol === i ?
-                  <TouchableOpacity disabled={player === 'defender'} style={[styles.attacker]}>
-                    <Text style={{color: '#000'}}>0</Text>
-                  </TouchableOpacity> : null
-                }  
-
-                {
-                  defender1Row == 5 && defender1Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 1 ? 'green': 'black' }]} onPress={() => { setActiveDefender(1)}}>
-                    <Text style={{color: '#FFF'}}>1</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender2Row == 5 && defender2Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 2 ? 'green': 'black' }]} onPress={() => {setActiveDefender(2)}}>
-                    <Text style={{color: '#FFF'}}>2</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender3Row == 5 && defender3Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 3 ? 'green': 'black' }]} onPress={() => {setActiveDefender(3)}}>
-                    <Text style={{color: '#FFF'}}>3</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender4Row == 5 && defender4Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 4 ? 'green': 'black' }]} onPress={() => {setActiveDefender(4)}}>
-                    <Text style={{color: '#FFF'}}>4</Text>
-                  </TouchableOpacity> : null
-                }
-                
-            </TouchableOpacity>
-          })}
-        </View>
-
-        <View style={styles.row}>
-          {Array.from(Array(8), (e, i) => {
-            return <TouchableOpacity disabled={!isHighlighted(6, i)}  key={i} onPress={() => { onTileClick(6, i) } } style={[styles.tile, { backgroundColor: i%2 ? '#7c945d' : '#eeeed5', opacity: isHighlighted(6, i) ? 0.7 : 1 }]}>
-
-                {
-                  attackerRow == 6 && attackerCol === i ?
-                  <TouchableOpacity disabled={player === 'defender'} style={[styles.attacker]}>
-                    <Text style={{color: '#000'}}>0</Text>
-                  </TouchableOpacity> : null
-                }  
-
-                {
-                  defender1Row == 6 && defender1Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 1 ? 'green': 'black' }]} onPress={() => { setActiveDefender(1)}}>
-                    <Text style={{color: '#FFF'}}>1</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender2Row == 6 && defender2Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 2 ? 'green': 'black' }]} onPress={() => {setActiveDefender(2)}}>
-                    <Text style={{color: '#FFF'}}>2</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender3Row == 6 && defender3Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 3 ? 'green': 'black' }]} onPress={() => {setActiveDefender(3)}}>
-                    <Text style={{color: '#FFF'}}>3</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender4Row == 6 && defender4Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 4 ? 'green': 'black' }]} onPress={() => {setActiveDefender(4)}}>
-                    <Text style={{color: '#FFF'}}>4</Text>
-                  </TouchableOpacity> : null
-                }
-                
-            </TouchableOpacity>
-          })}
-        </View>
-
-        <View style={styles.row}>
-          {Array.from(Array(8), (e, i) => {
-            return <TouchableOpacity disabled={!isHighlighted(7, i)}  key={i} onPress={() => { onTileClick(7, i) } } style={[styles.tile, { backgroundColor: i%2 ? '#eeeed5' : '#7c945d', opacity: isHighlighted(7, i) ? 0.7 : 1 }]}>
-
-                {
-                  attackerRow == 7 && attackerCol === i ?
-                  <TouchableOpacity disabled={player === 'defender'} style={[styles.attacker]}>
-                    <Text style={{color: '#000'}}>0</Text>
-                  </TouchableOpacity> : null
-                }               
-                
-                {
-                  defender1Row == 7 && defender1Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 1 ? 'green': 'black' }]} onPress={() => { setActiveDefender(1)}}>
-                    <Text style={{color: '#FFF'}}>1</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender2Row == 7 && defender2Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 2 ? 'green': 'black' }]} onPress={() => {setActiveDefender(2)}}>
-                    <Text style={{color: '#FFF'}}>2</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender3Row == 7 && defender3Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 3 ? 'green': 'black' }]} onPress={() => {setActiveDefender(3)}}>
-                    <Text style={{color: '#FFF'}}>3</Text>
-                  </TouchableOpacity> : null
-                }
-                {
-                  defender4Row == 7 && defender4Col === i ?
-                  <TouchableOpacity disabled={player === 'attacker'} style={[styles.pawn, {backgroundColor: activeDefender === 4 ? 'green': 'black' }]} onPress={() => {setActiveDefender(4)}}>
-                    <Text style={{color: '#FFF'}}>4</Text>
-                  </TouchableOpacity> : null
-                }
-                
-            </TouchableOpacity>
-          })}
-        </View>
-
-        {/* <View style={styles.row}>
-            {Array.from(Array(8), (e, i) => {
-              return <Tiles key={i} moveAttacker={moveAttacker} color={i%2 ? '#7c945d' : '#eeeed5'} row={0} defenders={[ { id: 1, col: defender1Col, row: defender1Row }, { id: 2, col: defender2Col, row: defender2Row }, { id: 3, col: defender3Col, row: defender3Row }, { id: 4, col: defender4Col, row: defender4Row } ]} position={i}/>
-            })}
-          </View> 
-        <View style={styles.row}>
-            {Array.from(Array(8), (e, i) => {
-              return <Tiles key={i} color={i%2 ? '#eeeed5' : '#7c945d'} row={1} isAttacker={attackerRow === 1 ? true : false} attackerRow={attackerRow}  attackerCol={attackerCol} position={i} moveAttacker={moveAttacker}/>
-            })}
-        </View>
-        <View style={styles.row}>
-            {Array.from(Array(8), (e, i) => {
-              return <Tiles key={i} color={i%2 ? '#7c945d' : '#eeeed5'} row={2} isAttacker={attackerRow === 2 ? true : false} attackerRow={attackerRow}  attackerCol={attackerCol} position={i} moveAttacker={moveAttacker} />
-            })}
-        </View>
-        <View style={styles.row}>
-            {Array.from(Array(8), (e, i) => {
-              return <Tiles key={i} color={i%2 ? '#eeeed5' : '#7c945d'} row={3} isAttacker={attackerRow === 3 ? true : false} attackerRow={attackerRow}  attackerCol={attackerCol} position={i} moveAttacker={moveAttacker} />
-            })}
-        </View>
-        <View style={styles.row}>
-            {Array.from(Array(8), (e, i) => {
-              return <Tiles key={i} color={i%2 ? '#7c945d' : '#eeeed5'} row={4} isAttacker={attackerRow === 4 ? true : false} attackerRow={attackerRow}  attackerCol={attackerCol} position={i} moveAttacker={moveAttacker} />
-            })}
-        </View>
-        <View style={styles.row}>
-            {Array.from(Array(8), (e, i) => {
-              return <Tiles key={i} color={i%2 ? '#eeeed5' : '#7c945d'} row={5} isAttacker={attackerRow === 5 ? true : false} attackerRow={attackerRow}  attackerCol={attackerCol} position={i} moveAttacker={moveAttacker} />
-            })}
-        </View>
-        <View style={styles.row}>
-            {Array.from(Array(8), (e, i) => {
-              return <Tiles key={i} color={i%2 ? '#7c945d' : '#eeeed5'} row={6} isAttacker={attackerRow === 6 ? true : false} attackerRow={attackerRow}  attackerCol={attackerCol} position={i} moveAttacker={moveAttacker} />
-            })}
-        </View>
-        <View style={styles.row}>
-            {Array.from(Array(8), (e, i) => {
-              return <Tiles key={i} color={i%2 ? '#eeeed5' : '#7c945d'} row={7} isAttacker={attackerRow === 7 ? true : false} attackerRow={attackerRow} attackerCol={attackerCol} position={i} moveAttacker={moveAttacker} />
-            })}
-        </View>
-          */}
       </View>
       <TouchableOpacity style={styles.restart} onPress={restartGame}><Text style={{color: '#FFF', fontSize: 20}}>New game</Text></TouchableOpacity>
       <TouchableOpacity style={[styles.restart, styles.howto]}><Text style={{color: '#FFF', fontSize: 20}}>How to play</Text></TouchableOpacity>
@@ -761,14 +313,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  defender: {
+    backgroundColor: '#000'
+  },
   attacker: {
-    width: "80%",
-    height: "72%",
-    borderRadius: 30,
-    borderWidth: 0.5,
-    borderColor: "#000",
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#FFF'
   },
   restart: {
